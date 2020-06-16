@@ -1,0 +1,33 @@
+version: '3'
+
+services:
+  postgres:
+    build:
+      context: ./postgresql
+      dockerfile: Dockerfile
+    command: -c ssl=on -c ssl_cert_file=/var/lib/postgresql/server.crt -c ssl_key_file=/var/lib/postgresql/server.key
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=stemp
+    volumes:
+      - "../db:/docker-entrypoint-initdb.d"
+    ports:
+      - "11432:5432"
+  stemp:
+    build:
+      context: ./build/docker
+      dockerfile: Dockerfile
+    depends_on:
+      - "postgres"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres/stemp
+    entrypoint:
+      java -cp /app/resources:/app/classes:/app/libs/* se.lixi.stemp.Application
+    # java -Djdk.tls.client.enableSessionTicketExtension=false -cp /app/resources:/app/classes:/app/libs/* se.lixi.stemp.Application
+    deploy:
+      resources:
+        limits:
+          memory: 400m
+    ports:
+      - "8081:8081"
