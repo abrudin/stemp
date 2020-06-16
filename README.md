@@ -1,5 +1,12 @@
 # SessionTicketExtension problematic memory behavior
 
+## Background
+When upgrading to Java 14 one may notice a drastic change in memory usage when
+regularly creating SSL connections (as shown here with a SSL-enabled postgresql database).
+The reason seems to be the `-Djdk.tls.client.enableSessionTicketExtension=true` flag,
+which was set true as default in Java 14, which in turn causes all handshake sessions to
+be cached, even though the connections are just thrown away when their maxLifetime has expired.
+
 ## TLDR;
 Run
 ```
@@ -33,6 +40,10 @@ With `-Djdk.tls.client.enableSessionTicketExtension=true` (default)
 
 With `-Djdk.tls.client.enableSessionTicketExtension=false`
 ![Alt text](images/without-ste.png?raw=true "With jdk.tls.client.enableSessionTicketExtension=true")
+
+To be able to spot the issue faster, I have set the Hikari connection pool to have a short
+maxLifetime (30s) on its connections, but it will be the same with the default settings (1800s),
+it will just take a little longer.
 
 ## The long version
 TBD
