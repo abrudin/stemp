@@ -42,7 +42,6 @@ dependencies {
             baseImage = 'openjdk:14.0.1-slim-buster'
             ports = [8080]
             images = ["stemp:" + (project.findProperty('tag') ?: "latest")]
-            jvmArgs = ["-Djdk.tls.client.enableSessionTicketExtension=false"]
         }
     }
 }
